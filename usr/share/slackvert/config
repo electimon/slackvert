@@ -1,0 +1,4 @@
+export PACKAGE=`find *.SlackBuild -type f -print`
+export PACKAGEREAL=$(readlink -f $PACKAGE)
+export PACKAGENAME=$(echo "$PACKAGE" | sed -e "s/.SlackBuild$//")
+#export PACKAGEDIR=`readlink -f /tmp/SBo/package-$PACKAGENAME`

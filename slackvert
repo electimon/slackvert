@@ -1,0 +1,39 @@
+#!/bin/bash
+. /usr/share/slackvert/config
+if [ ! -f *.SlackBuild ]
+then
+	echo "No SlackBuild Found!"
+else
+	if grep -q "#!/bin/sh" "$PACKAGEREAL" || grep -q "#!/bin/bash" "$PACKAGEREAL"
+	then
+		chmod +x $PACKAGEREAL
+	fi
+	MAKEPKGLN=$(grep -n 'makepkg' $PACKAGEREAL | cut -d: -f 1)
+	MAKEPKGSTRNEW=$(sed -e "$MAKEPKGLN"'!d' -e 's/^/#/' $PACKAGEREAL)
+	sed -i "$MAKEPKGLN c\\$MAKEPKGSTRNEW" $PACKAGEREAL
+	if ./$PACKAGE
+	then		
+		echo "Packages built, "
+		PACKAGEDIR=`find /tmp -name package-$PACKAGENAME`
+		for i in `ls $PACKAGEDIR` #Commit Install
+		do
+			if [[ $i = "install" ]]
+			then
+				:
+			else
+				echo "Installing:"
+				echo `find $PACKAGEDIR/$i/`
+				echo Yes?
+				read yes
+				if [[ $yes = "Yes" ]] || [[ $yes = "yes" ]] || [[ $yes = "y" ]] || [[ $yes = "Yes" ]]
+				then
+					cp -rav --interactive $PACKAGEDIR/$i/* /$i # Install script is just this statement
+				else
+					echo "Ok!"
+				fi
+			fi
+		done
+	else
+		echo "Something went wrong!"
+	fi
+fi
